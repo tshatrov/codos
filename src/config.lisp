@@ -31,6 +31,9 @@
 (defconfig |test|
   '())
 
+(load (asdf:system-relative-pathname :codos "settings.lisp")
+      :if-does-not-exist nil)
+
 (defun config (&optional key)
   (envy:config #.(package-name *package*) key))
 
