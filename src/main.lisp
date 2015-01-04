@@ -14,7 +14,7 @@
 
 (defvar *handler* nil)
 
-(defun start (&rest args &key server port debug &allow-other-keys)
+(defun start* (&rest args &key server port debug &allow-other-keys)
   (declare (ignore server port debug))
   (when *handler*
     (restart-case (error "Server is already running.")
@@ -23,6 +23,9 @@
         (stop))))
   (setf *handler*
         (apply #'clackup *appfile-path* args)))
+
+(defun start ()
+  (start* :port 8081))
 
 (defun stop ()
   (prog1

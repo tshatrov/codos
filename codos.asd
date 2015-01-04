@@ -11,6 +11,7 @@
                :caveman2
                :envy
                :cl-ppcre
+               :cl-base32
 
                ;; HTML Template
                :cl-emb
@@ -19,11 +20,13 @@
                :datafly
                :sxql)
   :components ((:module "src"
+                :serial t
                 :components
-                ((:file "main" :depends-on ("config" "view" "db"))
-                 (:file "web" :depends-on ("view"))
-                 (:file "view" :depends-on ("config"))
-                 (:file "db" :depends-on ("config"))
-                 (:file "config"))))
+                ((:file "config")
+                 (:file "crypto")
+                 (:file "db")
+                 (:file "view")
+                 (:file "web")
+                 (:file "main"))))
   :description "Collaborative Document Store"
   :in-order-to ((test-op (load-op codos-test))))

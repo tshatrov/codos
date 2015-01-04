@@ -47,14 +47,15 @@
            (fullname :type 'text)
            (email :type 'text)
            (adminp :type 'boolean)
-           (hash :type 'text))
-        )
+           (hash :type 'text)
+           (session :type 'text)
+           ))
 
       (create-table :document
           ((id :type 'serial :primary-key t)
            (title :type 'text)
            (author :type 'integer)
-           (slug :type 'text)
+           (slug :type 'text :unique t)
            )
         (foreign-key '(:author) :references '(:user :id)))
       
@@ -62,7 +63,7 @@
           ((id :type 'serial :primary-key t)
            (title :type 'text)
            (author :type 'integer)
-           (slug :type 'text)
+           (slug :type 'text :unique t)
            )
         (foreign-key '(:author) :references '(:user :id)))
 
@@ -71,7 +72,8 @@
            (hub :type 'integer)
            (document :type 'integer))
         (foreign-key '(:hub) :references '(:hub :id))
-        (foreign-key '(:document) :references '(:document :id)))
+        (foreign-key '(:document) :references '(:document :id))
+        (primary-key '(:hub :document)))
       
       (create-table :viewfield
           ((id :type 'serial :primary-key t)
@@ -91,7 +93,8 @@
            (viewset :type 'integer)
            (view :type 'integer))
         (foreign-key '(:viewset) :references '(:viewset :id))
-        (foreign-key '(:view) :references '(:viewfield :id)))
+        (foreign-key '(:view) :references '(:viewfield :id))
+        (primary-key '(:viewset :view)))
       
       (create-table :section
           ((id :type 'serial :primary-key t)
@@ -118,7 +121,8 @@
         (foreign-key '(:presentation) :references '(:presentation :id)))
 
       (create-table :chunk-view
-          ((chunk :type 'integer)
+          ((id :type 'serial :primary-key t)
+           (chunk :type 'integer)
            (view :type 'integer)
            (author :type 'integer)
            (timestamp :type 'timestamp)
@@ -129,7 +133,22 @@
         (foreign-key '(:view) :references '(:viewfield :id)))
       )))
 
+(defun create-indexes ()
+  (with-connection (db)
+    (execute-many
+      (create-index "user_session_idx" :on '(:user :session))
+      (create-index "document_author_idx" :on '(:document :author))
+      (create-index "section_document_idx" :on '(:section :document :order))
+      (create-index "presentation_section_idx" :on '(:presentation :section :order))
+      (create-index "chunk_presentation_idx" :on '(:chunk :presentation :order))
+      (create-index "chunk_view_author_idx" :on '(:chunk-view :author))
+      (create-index "chunk_view_timestamp_idx" :on '(:chunk-view :timestamp))
+      (create-index "chunk_view_idx" :on '(:chunk-view :chunk :view))
+      (create-index "chunk_view_selected_idx" :on '(:chunk-view :selected)))))
+      
+
 (defun init-db ()
   (with-connection (db)
     (drop-tables)
-    (init-tables)))
+    (init-tables)
+    (create-indexes)))

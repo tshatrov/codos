@@ -9,7 +9,8 @@
   (:import-from :clack.middleware.static
                 :<clack-middleware-static>)
   (:import-from :clack.middleware.session
-                :<clack-middleware-session>)
+                :<clack-middleware-session>
+                :<clack-session-state-cookie>)
   (:import-from :clack.middleware.accesslog
                 :<clack-middleware-accesslog>)
   (:import-from :clack.middleware.backtrace
@@ -39,7 +40,9 @@
      (make-instance '<clack-middleware-backtrace>
                     :output (getf (config) :error-log))
      nil)
- <clack-middleware-session>
+ (<clack-middleware-session>
+  :state (make-instance '<clack-session-state-cookie>
+                        :httponly t))
  (if (productionp)
      nil
      (lambda (app)

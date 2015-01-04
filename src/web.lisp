@@ -7,7 +7,8 @@
         :codos.db
         :datafly
         :sxql)
-  (:export :*web*))
+  (:export :*web*
+           :codos-url-for))
 (in-package :codos.web)
 
 ;;
@@ -20,9 +21,17 @@
 ;;
 ;; Routing rules
 
-(defroute "/" ()
-  (with-layout (:title "Welcome to Caveman2")
+;; (defroute "/" ()
+;;   (with-layout (:title "CoDoS home")
+;;     (render #P"index.tmpl")))
+
+(defroute index "/codos/" ()
+  (with-layout (:title "CoDoS home")
     (render #P"index.tmpl")))
+
+(defroute register "/codos/register/" ()
+  (with-layout (:title "Register new user")
+    (render #P"register.tmpl")))
 
 ;;
 ;; Error pages
@@ -31,3 +40,9 @@
   (declare (ignore app))
   (merge-pathnames #P"_errors/404.html"
                    *template-directory*))
+
+;; helper functions
+
+(defun codos-url-for (route-name &rest params)
+  (let ((caveman2.app:*current-app* *web*))
+    (apply #'caveman2:url-for route-name params)))
