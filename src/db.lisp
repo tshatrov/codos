@@ -9,7 +9,8 @@
                 :execute)
   (:export :connection-settings
            :db
-           :with-connection))
+           :with-connection
+           :init-db))
 (in-package :codos.db)
 
 (defun connection-settings (&optional (db :maindb))
@@ -49,6 +50,7 @@
            (adminp :type 'boolean)
            (hash :type 'text)
            (session :type 'text)
+           (registered :type 'timestamp)
            ))
 
       (create-table :document
@@ -56,6 +58,8 @@
            (title :type 'text)
            (author :type 'integer)
            (slug :type 'text :unique t)
+           (created :type 'timestamp)
+           (modified :type 'timestamp)
            )
         (foreign-key '(:author) :references '(:user :id)))
       
@@ -146,7 +150,6 @@
       (create-index "chunk_view_idx" :on '(:chunk-view :chunk :view))
       (create-index "chunk_view_selected_idx" :on '(:chunk-view :selected)))))
       
-
 (defun init-db ()
   (with-connection (db)
     (drop-tables)

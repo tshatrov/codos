@@ -98,6 +98,7 @@
                       ,@env-for-layout
                       (get-global-context)))))))
 
+
 ;; Define functions that are available in templates.
 (import '(codos.config:config
           codos.config:appenv

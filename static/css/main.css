@@ -19,3 +19,13 @@
 /* #main { */
 /*   text-align: center; */
 /* } */
+
+
+.top-bar-section li:not(.has-form) a.plain {
+    color: #ddd;
+}
+
+.top-bar-section li:not(.has-form) a.plain:hover {
+    color: #ddd;
+    background-color: #333;
+}

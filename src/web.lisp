@@ -25,12 +25,15 @@
 ;;   (with-layout (:title "CoDoS home")
 ;;     (render #P"index.tmpl")))
 
-(defroute index "/codos/" ()
-  (with-layout (:title "CoDoS home")
+(defun brand-title (title)
+  (format nil "~a - ~a" (config :page-title) title))
+
+(defroute index "/" ()
+  (with-layout (:title (brand-title "Home"))
     (render #P"index.tmpl")))
 
 (defroute register "/codos/register/" ()
-  (with-layout (:title "Register new user")
+  (with-layout (:title (brand-title "Register new user"))
     (render #P"register.tmpl")))
 
 ;;

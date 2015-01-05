@@ -6,7 +6,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title><% @if title %><% @var title %><% @else %>CoDoS - collaborative document store<% @endif %></title>
+        <title><% @if title %><% @var title %><% @else %><%= (config :page-title) %><% @endif %></title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -20,6 +20,49 @@
     </head>
 
     <body>
+        <nav class="top-bar" data-topbar role="navigation">
+            <ul class="title-area">
+                <li class="name"> 
+                    <h1><a href="<%= (url-for :index) %>"><%= (or (config :top-bar-title) "CoDoS") %></h1>
+                </li> <!-- Remove the class "menu-icon" to get rid of menu icon. Take out "Menu" to just have icon alone --> 
+            </ul> 
+            <section class="top-bar-section">
+                <!-- Right Nav Section --> 
+                <ul class="right"> 
+                    <% @if user %>
+                    <li>
+                        <a><% @var user/name %></a>
+                    </li>
+                    <li>
+                        <a href="#">Log out</a>
+                    </li>
+                    <% @else %>
+                    <li>
+                        <a class="plain">Guest</a>
+                    </li>
+                    <li>
+                        <a href="<%= (url-for :register) %>">Register</a>
+                    </li>
+                    <li>
+                        <a href="#">Log in</a>
+                    </li>
+                    <% @endif %>
+
+                    <!-- <li class="active"><a href="#">Right Button Active</a></li>
+                    <li class="has-dropdown"> <a href="#">Right Button Dropdown</a> 
+                    <ul class="dropdown">
+                    <li><a href="#">First link in dropdown</a></li>
+                    <li class="active"><a href="#">Active link in dropdown</a></li>
+                    </ul>
+                    </li> -->
+                </ul>
+                <!-- Left Nav Section -->
+                <ul class="left"> 
+                    <!-- <li><a href="#">Left Nav Button</a></li> -->
+                </ul> 
+            </section>
+        </nav>
+
       <div class="wrapper">
         <div class="header">
         </div>

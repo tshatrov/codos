@@ -26,6 +26,8 @@
                  (:file "crypto")
                  (:file "db")
                  (:file "view")
+                 (:file "forms")
+                 (:file "models")
                  (:file "web")
                  (:file "main"))))
   :description "Collaborative Document Store"
