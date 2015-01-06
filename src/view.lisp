@@ -60,12 +60,15 @@
    (setf (gethash :csrf-token *session*)
          (generate-csrf-token))))
 
+(defun get-user-info ()
+  (gethash :user *session*))
+
 (defparameter *global-context* nil)
 
 (defun get-global-context ()
   (list* :ver (get-asset-version)
          :csrf-token (get-csrf-token)
-         ;;:user (get-user-info)
+         :user (get-user-info)
          *default-layout-env*))
 
 (defun render (template-path &optional env)

@@ -20,6 +20,9 @@
 /*   text-align: center; */
 /* } */
 
+.wrapper {
+    padding-top: 20px;
+}
 
 .top-bar-section li:not(.has-form) a.plain {
     color: #ddd;

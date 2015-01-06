@@ -15,6 +15,7 @@
 
                ;; HTML Template
                :cl-emb
+               :cl-markup
 
                ;; for CL-DBI
                :datafly
@@ -26,8 +27,9 @@
                  (:file "crypto")
                  (:file "db")
                  (:file "view")
-                 (:file "forms")
+                 (:file "forms-lib")
                  (:file "models")
+                 (:file "forms")
                  (:file "web")
                  (:file "main"))))
   :description "Collaborative Document Store"

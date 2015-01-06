@@ -49,7 +49,6 @@
            (email :type 'text)
            (adminp :type 'boolean)
            (hash :type 'text)
-           (session :type 'text)
            (registered :type 'timestamp)
            ))
 
@@ -140,7 +139,6 @@
 (defun create-indexes ()
   (with-connection (db)
     (execute-many
-      (create-index "user_session_idx" :on '(:user :session))
       (create-index "document_author_idx" :on '(:document :author))
       (create-index "section_document_idx" :on '(:section :document :order))
       (create-index "presentation_section_idx" :on '(:presentation :section :order))
