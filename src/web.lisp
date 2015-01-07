@@ -21,6 +21,10 @@
 (defvar *web* (make-instance '<web>))
 (clear-routing-rules *web*)
 
+
+(defun test-url-for (route &rest params)
+  (let ((caveman2.app:*current-app* *web*))
+    (apply 'url-for route params)))
 ;;
 ;; Routing rules
 
@@ -38,7 +42,10 @@
   `(with-layout (:title (brand-title ,title))
      (render ,template ,template-env)))
 
-(defroute index "/" () (out "Home" #P"index.tmpl"))
+(defroute index "/" ()
+  (out "Home" #P"index.tmpl"
+       `(:hubs ,(list-table :hub (order-by :id)))
+       ))
 
 (defroute register ("/codos/register/" :method :GET) ()
   (let ((form (make-instance 'register-form)))
@@ -69,6 +76,11 @@
 (defroute logout ("/codos/logout/") ()
   (logout-user)
   (redirect (url-for 'index)))
+
+(defroute view-hub ("/h/:slug") (&key slug)
+  (db-let (hub :hub (where (:= :slug slug)))
+      (throw-code 404)
+    (out slug #P"hub.tmpl" hub)))
 
 ;;
 ;; Error pages

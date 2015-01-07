@@ -1,4 +1,15 @@
 <div class="row">
     <h2>Welcome to <%= (or (config :main-title) "CoDoS") %>!</h2>
     <p>The following hubs are currently available:</p>
+    <% @if hubs %>
+    <ul>
+        <% @loop hubs %>
+        <li>
+            <a href="<%= (url-for :view-hub :slug (getf env :slug)) %>">
+                <% @var title %>
+            </a>
+        </li>
+        <% @endloop %>
+    </ul>
+    <% @endif %>
 </div>

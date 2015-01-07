@@ -20,7 +20,10 @@
    ;; :user-adminp
    ;; :user-registered
 :login-user
-:logout-user))
+:logout-user
+:create-hub
+:list-table
+:db-let))
 
 (in-package :codos.models)
 
@@ -38,6 +41,24 @@
      for slot-name = (closer-mop:slot-definition-name slot)
      nconc (list (alexandria:make-keyword slot-name)
                  (slot-value model slot-name))))
+
+(defmacro list-table (table &body clauses)
+  `(with-connection (db)
+     (retrieve-all
+      (select :*
+        (from ,table)
+        ,@clauses))))
+
+(defmacro db-let ((var table &rest clauses) on-fail &body body)
+  `(with-connection (db)
+     (let ((,var (retrieve-one
+                  (select :*
+                    (from ,table)
+                    ,@clauses))))
+       (cond (,var ,@body)
+             (t ,on-fail)))))
+
+;; user
 
 (defun create-user (login password &key (fullname "") (email ""))
   (with-connection (db)
@@ -71,7 +92,38 @@
                :field nil
                :message "Invalid username and/or password"))
       (setf (getf user :hash) nil)
+      (setf (getf user :registered) (datetime-to-timestamp (getf user :registered)))
       (setf (gethash :user *session*) user))))
 
 (defun logout-user ()
   (setf (gethash :user *session*) nil))
+
+;; hub
+
+(defun generate-slug (str &key table)
+  (setf str (ppcre:regex-replace-all "[$&+,/:;=?@\\s\"<>#%{}|\\\\^~\\[\\]`]" str "-"))
+  (setf str (ppcre:regex-replace-all "-+" str "-"))
+  (setf str (string-downcase str))
+  (when (> (length str) 20)
+    (setf str (subseq str 0 20)))
+  (when table
+    (let* ((existing (retrieve-all
+                      (select :slug (from table)
+                              (where (:like :slug (format nil "~a%" str))))))
+           (slugs (mapcar 'second existing)))
+      (when (member str slugs :test 'equal)
+        (loop for n from 1
+             for newstr = (format nil "~a~a" str n)
+             while (member newstr slugs)
+             finally (setf str newstr)))))
+  str)
+
+(defun create-hub (title author-id &optional slug)
+  (with-connection (db)
+    (execute
+     (insert-into :hub
+       (set= :title title
+             :author author-id
+             :slug (or slug (generate-slug title :table :hub))
+             )))))
+
