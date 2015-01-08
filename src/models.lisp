@@ -5,7 +5,7 @@
                 :*session*)
   (:import-from :codos.config
                 :config)
-  (:import-from :iforms
+  (:import-from :1forms
                 :field-error)
   (:import-from :cl-annot.class
                 :export-constructors)

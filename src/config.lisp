@@ -19,6 +19,8 @@
 (defparameter *static-directory*   (merge-pathnames #P"static/" *application-root*))
 (defparameter *template-directory* (merge-pathnames #P"templates/" *application-root*))
 
+(defparameter 1forms:*form-template-directory* (merge-pathnames #P"forms/" *template-directory*))
+
 (defconfig :common
   `(:databases ((:maindb :sqlite3 :database-name ":memory:"))
     :top-bar-title "CoDoS"

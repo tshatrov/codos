@@ -1,6 +1,6 @@
 (in-package :cl-user)
 (defpackage codos.forms
-  (:use :cl :codos.view :iforms :codos.models)
+  (:use :cl :codos.view :1forms :codos.models)
   (:import-from :codos.config
                 :config)
   (:import-from :caveman2

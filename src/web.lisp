@@ -5,7 +5,7 @@
         :codos.config
         :codos.view
         :codos.db
-        :iforms
+        :1forms
         :codos.forms
         :codos.models
         :datafly

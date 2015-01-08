@@ -16,6 +16,7 @@
                ;; HTML Template
                :cl-emb
                :cl-markup
+               :1forms
 
                ;; for CL-DBI
                :datafly
@@ -27,7 +28,6 @@
                  (:file "crypto")
                  (:file "db")
                  (:file "view")
-                 (:file "forms-lib")
                  (:file "models")
                  (:file "forms")
                  (:file "web")
