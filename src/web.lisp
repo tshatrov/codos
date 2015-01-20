@@ -38,9 +38,12 @@
 (defun post-params ()
   (body-parameter *request*))
 
-(defmacro out (title template &optional template-env)
-  `(with-layout (:title (brand-title ,title))
-     (render ,template ,template-env)))
+(defmacro out (title-env template &optional template-env)
+  (unless (and (listp title-env) (eql (car title-env) :title))
+    (setf title-env `(:title ,title-env)))
+  (destructuring-bind (title . layout-env) (cdr title-env)
+    `(with-layout (:title (brand-title ,title) ,@layout-env)
+       (render ,template ,template-env))))
 
 (defroute index "/" ()
   (out "Home" #P"index.tmpl"
@@ -80,7 +83,10 @@
 (defroute view-hub ("/h/:slug") (&key slug)
   (db-let (hub :hub (where (:= :slug slug)))
       (throw-code 404)
-    (out slug #P"hub.tmpl" hub)))
+    (out (:title (getf hub :title) :hub-id (getf hub :id)) #P"hub.tmpl" hub)))
+
+(defroute new-document ("/document/new/") ()
+  (out "New document" #P"docsettings.tmpl" ))
 
 ;;
 ;; Error pages
