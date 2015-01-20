@@ -1,0 +1,15 @@
+<div class="row">
+    <h2><% @var login %></h2>
+
+    <% @if documents %>
+    <p>The following documents were created by this user:</p>
+    <ul>
+        <% @loop documents %>
+        <li>
+          <% @var title %>
+        </li>
+        <% @endloop %>
+    </ul>
+    <% @endif %>
+
+</div>

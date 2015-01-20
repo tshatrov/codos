@@ -85,8 +85,21 @@
       (throw-code 404)
     (out (:title (getf hub :title) :hub-id (getf hub :id)) #P"hub.tmpl" hub)))
 
-(defroute new-document ("/document/new/") ()
-  (out "New document" #P"docsettings.tmpl" ))
+(defroute new-document ("/document/new/" :method '(:post :get)) ()
+  (let ((form (make-instance 'doc-settings-form)))
+    (when (eql (request-method *request*) :post)
+      (bind-form form 'post-params))
+    (process-form form
+        (out "New document" #P"docsettings.tmpl"
+             `(:form ,(render-form form)))
+      (redirect (url-for 'user-profile :login (getf (get-user-info) :login)))
+      )))
+
+(defroute user-profile ("/u/:login") (&key login)
+  (db-let (user :user (where (:= :login login)))
+      (throw-code 404)
+    (out (format nil "Profile: ~a" (getf user :login)) #P"userprofile.tmpl"
+         (get-full-user-data user))))
 
 ;;
 ;; Error pages

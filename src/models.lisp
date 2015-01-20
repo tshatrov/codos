@@ -23,7 +23,9 @@
 :logout-user
 :create-hub
 :list-table
-:db-let))
+:db-let
+:create-document
+:get-full-user-data))
 
 (in-package :codos.models)
 
@@ -98,6 +100,13 @@
 (defun logout-user ()
   (setf (gethash :user *session*) nil))
 
+(defun get-full-user-data (user)
+  (setf (getf user :documents)
+        (list-table :document
+          (where (:= :author (getf user :id)))
+          (order-by (:desc :modified))))
+  user)
+
 ;; hub
 
 (defun generate-slug (str &key table)
@@ -127,3 +136,13 @@
              :slug (or slug (generate-slug title :table :hub))
              )))))
 
+(defun create-document (title author-id &optional slug)
+  (with-connection (db)
+    (execute
+     (insert-into :document
+       (set= :title title
+             :author author-id
+             :slug (or slug (generate-slug title :table :document))
+             :created '(:raw "NOW()")
+             :modified '(:raw "NOW()")
+             )))))

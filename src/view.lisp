@@ -24,7 +24,8 @@
            :with-layout
            :get-global-context
            :set-asset-version
-           :get-asset-version))
+           :get-asset-version
+           :get-user-info))
 (in-package :codos.view)
 
 (defvar *default-layout-directory* #P"layouts/")

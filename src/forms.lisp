@@ -8,7 +8,8 @@
                 :*session*)
   (:export
    :register-form
-   :login-form))
+   :login-form
+   :doc-settings-form))
 
 (in-package :codos.forms)
 
@@ -70,4 +71,17 @@
 (defmethod validate :after ((form login-form))
   (let ((data (form-data form)))
     (login-user (getf data :login) (getf data :password))))
+
+(def-form doc-settings-form ()
+  (:title string-field
+          :validator (lambda (str) (validate-length str 1 512))
+          :name "title"
+          :label "Title"))
   
+(defmethod validate :after ((form doc-settings-form))
+  (let ((user (get-user-info))
+        (data (form-data form)))
+    (create-document
+     (getf data :title)
+     (getf user :id))))
+     
