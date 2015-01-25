@@ -6,7 +6,7 @@
     <ul>
         <% @loop documents %>
         <li>
-          <% @var title %>
+          <a href="<%= (url-for :view-document :slug (getf env :slug)) %>"><% @var title %></a>
         </li>
         <% @endloop %>
     </ul>

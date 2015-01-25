@@ -45,6 +45,9 @@
     `(with-layout (:title (brand-title ,title) ,@layout-env)
        (render ,template ,template-env))))
 
+(defun js-list (&rest paths)
+  (mapcar (lambda (path) (list :path path)) paths))
+
 (defroute index "/" ()
   (out "Home" #P"index.tmpl"
        `(:hubs ,(list-table :hub (order-by :id)))
@@ -100,6 +103,13 @@
       (throw-code 404)
     (out (format nil "Profile: ~a" (getf user :login)) #P"userprofile.tmpl"
          (get-full-user-data user))))
+
+(defroute view-document ("/d/:slug") (&key slug)
+  (db-let (document :document (where (:= :slug slug)))
+      (throw-code 404)
+    (out (:title (getf document :title)
+          :extrajs (js-list "doc.js"))
+         #P"document.tmpl" (get-document-data document))))
 
 ;;
 ;; Error pages

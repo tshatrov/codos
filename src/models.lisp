@@ -25,7 +25,8 @@
 :list-table
 :db-let
 :create-document
-:get-full-user-data))
+:get-full-user-data
+:get-document-data))
 
 (in-package :codos.models)
 
@@ -136,6 +137,8 @@
              :slug (or slug (generate-slug title :table :hub))
              )))))
 
+;; document
+
 (defun create-document (title author-id &optional slug)
   (with-connection (db)
     (execute
@@ -146,3 +149,10 @@
              :created '(:raw "NOW()")
              :modified '(:raw "NOW()")
              )))))
+
+(defun get-document-data (document)
+  (setf (getf document :content) (get-document-content document))
+  document)
+
+(defun get-document-content (document)
+  "")
