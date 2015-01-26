@@ -26,6 +26,7 @@
                 :components
                 ((:file "config")
                  (:file "crypto")
+                 (:file "markup")
                  (:file "db")
                  (:file "view")
                  (:file "models")
