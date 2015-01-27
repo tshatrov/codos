@@ -1,16 +1,13 @@
 (in-package :cl-user)
 (defpackage codos.db
-  (:use :cl :sxql)
+  (:use :cl :sxql :datafly)
   (:import-from :codos.config
                 :config)
-  (:import-from :datafly
-                :*connection*
-                :connect-cached
-                :execute)
   (:export :connection-settings
            :db
            :with-connection
-           :init-db))
+           :init-db
+           :returning))
 (in-package :codos.db)
 
 (defun connection-settings (&optional (db :maindb))
@@ -26,6 +23,18 @@
 (defmacro execute-many (&body forms)
   `(progn ,@(loop for form in forms collect `(execute ,form))))
 
+
+(defstruct (returning-clause
+             (:include sxql.sql-type:statement-clause (name "RETURNING"))
+             (:constructor make-returning-clause
+                           (&rest fields
+                                  &aux (statement (apply #'sxql.sql-type:make-sql-splicing-list fields))))))
+
+(defmethod make-clause ((clause-name (eql :returning)) &rest args)
+  (apply #'make-returning-clause (mapcar #'sxql.operator:detect-and-convert args)))
+
+(defun returning (&rest fields)
+  (apply #'make-clause :returning fields))
 
 (defparameter *tables*
   '(:user :document :hub :hub-doc
@@ -153,3 +162,28 @@
     (drop-tables)
     (init-tables)
     (create-indexes)))
+
+
+(defun init-fixtures ()
+  (with-connection (db)
+    ;; default viewset
+    (let ((default-view
+           (retrieve-one
+            (insert-into :viewfield
+              (set= :abbr "def"
+                    :description "default")
+              (returning :id))))
+          (default-viewset
+           (retrieve-one
+            (insert-into :viewset
+              (set= :id 1 :title "Default")
+              (returning :id)))))
+      (execute
+       (insert-into :viewset-view
+         (set= :order 0
+               :viewset (getf default-viewset :id)
+               :view (getf default-view :id)))))))
+      
+      
+             
+      

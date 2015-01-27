@@ -26,7 +26,8 @@
 :db-let
 :create-document
 :get-full-user-data
-:get-document-data))
+:get-document-data
+:get-all-viewsets))
 
 (in-package :codos.models)
 
@@ -60,6 +61,26 @@
                     ,@clauses))))
        (cond (,var ,@body)
              (t ,on-fail)))))
+
+(defun group-plists (plists id-key group-key filter-key count)
+  (loop with hash = (make-hash-table)
+       for plist in plists
+       for id = (getf plist id-key)
+       for grouped = (gethash id hash)
+       for vars = (nthcdr count plist)
+       if grouped
+       do (push (getf grouped group-key) vars)
+       else
+       do (setf (gethash id hash)
+                (list*
+                 group-key (when (getf vars filter-key) (list vars))
+                 (subseq plist 0 count)))
+       and collect id into keys
+       finally
+       (return (loop for idk in keys
+                    for plist = (gethash idk hash)
+                    do (setf (getf plist group-key) (reverse (getf plist group-key)))
+                    collect plist))))
 
 ;; user
 
@@ -107,6 +128,18 @@
           (where (:= :author (getf user :id)))
           (order-by (:desc :modified))))
   user)
+
+;; viewsets
+
+(defun get-all-viewsets ()
+  (let ((viewsets
+         (retrieve-all
+          (select '(:viewset.id :viewset.title :vv.order :viewfield.*)
+                  (from :viewset)
+                  (left-join (:as :viewset-view :vv) :on (:= :vv.viewset :viewset.id))
+                  (left-join :viewfield :on (:= :vv.view :viewfield.id))
+                  (order-by :viewset.id :vv.order)))))
+    (group-plists viewsets :id :views :id 4)))
 
 ;; hub
 
@@ -156,3 +189,8 @@
 
 (defun get-document-content (document)
   "")
+
+;; section
+
+(defun create-section ()
+  )

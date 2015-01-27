@@ -1,0 +1,11 @@
+<div class="row">
+  <h2>Viewset settings</h2>
+  <% @loop viewsets %>
+  <h4><% @var title %></h4>
+  <ul>
+    <% @loop views %>
+    <li><% @var abbr %>: <% @var description %></li>
+    <% @endloop %>
+  </ul>
+  <% @endloop %>
+</div>

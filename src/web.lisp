@@ -111,6 +111,13 @@
           :extrajs (js-list "doc.js"))
          #P"document.tmpl" (get-document-data document))))
 
+(defroute viewset-settings ("/codos/settings/viewsets/") ()
+   (unless (getf (get-user-info) :adminp)
+     (throw-code 403))
+   (out "Viewset settings" #P"viewsets.tmpl"
+        `(:viewfields ,(retrieve-all (select :* (from :viewfield)))
+          :viewsets ,(get-all-viewsets))))
+
 ;;
 ;; Error pages
 
