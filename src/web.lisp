@@ -59,6 +59,10 @@
 (defun media-list (&rest paths)
   (mapcar (lambda (path) (list :path path)) paths))
 
+(defun admin-only ()
+  (unless (getf (get-user-info) :adminp)
+    (throw-code 403)))
+
 (defroute index "/" ()
   (out "Home" #P"index.tmpl"
        `(:hubs ,(list-table :hub (order-by :id)))
@@ -122,9 +126,7 @@
           :extrajs (media-list "doc.js"))
          #P"document.tmpl" (get-document-data document))))
 
-(defroute viewset-settings ("/codos/settings/viewsets/") ()
-   (unless (getf (get-user-info) :adminp)
-     (throw-code 403))
+(defroute viewset-settings ("/codos/settings/viewsets/") () (admin-only)
    (out (:title "Viewset settings" :extrajs (media-list "settings.js"))
         #P"viewsets.tmpl"
         `(:viewfields ,(retrieve-all (select :* (from :viewfield)))
@@ -132,6 +134,7 @@
           :viewsets ,(get-all-viewsets))))
 
 (defroute viewfield-add ("/codos/api/viewfield/add" :method :POST) ()
+  (admin-only)
   (let ((form (make-instance 'viewfield-form)))
     (bind-form form 'post-params)
     (process-form form

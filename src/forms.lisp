@@ -22,6 +22,13 @@
 (defgeneric finalize-edit (form)
   (:method (form)))
 
+(defun validate-csrf (str)
+  (unless (equal str (get-csrf-token))
+    (error 'field-error :message "CSRF check failed")))
+
+(def-form csrf-form (form)
+  (:csrf hidden-field :name "csrf" :validator 'validate-csrf :initial (get-csrf-token)))
+
 (defmethod finalize ((form add-edit-form))
   (if (getf (form-vars form) :id)
       (finalize-edit form)
@@ -42,7 +49,7 @@
   (unless (or (alexandria:emptyp str) (find #\@ str))
     (error 'field-error :message "Invalid email address")))
 
-(def-form register-form ()
+(def-form register-form (csrf-form)
   (:login string-field
           :validator 'validate-login
           :name "login"
@@ -71,7 +78,7 @@
      :email (getf data :email ""))))
 
 
-(def-form login-form ()
+(def-form login-form (csrf-form)
   (:login string-field
           :validator (lambda (str) (validate-length str nil 20))
           :name "login"
@@ -86,7 +93,7 @@
   (let ((data (form-data form)))
     (login-user (getf data :login) (getf data :password))))
 
-(def-form doc-settings-form ()
+(def-form doc-settings-form (csrf-form)
   (:title string-field
           :validator (lambda (str) (validate-length str 1 512))
           :name "title"
@@ -99,7 +106,7 @@
      (getf data :title)
      (getf user :id))))
      
-(def-form viewfield-form (add-edit-form)
+(def-form viewfield-form (add-edit-form csrf-form)
   (:abbr string-field
          :validator (lambda (str) (validate-length str 1 10))
          :name "abbr"

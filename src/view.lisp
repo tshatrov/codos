@@ -5,7 +5,11 @@
                 :*template-directory*)
   (:import-from :caveman2
                 :*response*
-                :*session*)
+                :*request*
+                :*session*
+                :body-parameter
+                :throw-code
+                )
   (:import-from :clack.response
                 :headers)
   (:import-from :cl-emb
@@ -25,7 +29,9 @@
            :get-global-context
            :set-asset-version
            :get-asset-version
-           :get-user-info))
+           :get-user-info
+           :check-csrf
+           :get-csrf-token))
 (in-package :codos.view)
 
 (defvar *default-layout-directory* #P"layouts/")
@@ -60,6 +66,11 @@
    (gethash :csrf-token *session*)
    (setf (gethash :csrf-token *session*)
          (generate-csrf-token))))
+
+(defun check-csrf (&optional (field "csrf"))
+  (unless (equal (gethash :csrf-token *session*)
+                 (cdr (assoc field (body-parameter *request*) :test 'equal)))
+    (throw-code 403)))
 
 (defun get-user-info ()
   (gethash :user *session*))
