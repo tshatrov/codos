@@ -10,6 +10,7 @@
         :codos.models
         :datafly
         :sxql)
+  (:shadow :defroute)
   (:export :*web*
            :codos-url-for))
 (in-package :codos.web)
@@ -28,10 +29,6 @@
 ;;
 ;; Routing rules
 
-;; (defroute "/" ()
-;;   (with-layout (:title "CoDoS home")
-;;     (render #P"index.tmpl")))
-
 (defun brand-title (title)
   (format nil "~a - ~a" (config :page-title) title))
 
@@ -44,6 +41,20 @@
   (destructuring-bind (title . layout-env) (cdr title-env)
     `(with-layout (:title (brand-title ,title) ,@layout-env)
        (render ,template ,template-env))))
+
+(defmacro defroute (&rest args)
+  (typecase (car args)
+    (symbol
+     (destructuring-bind (name routing-rule lambda-list &rest body) args
+       `(caveman2:defroute ,name ,routing-rule ,lambda-list
+         (with-connection (db)
+           ,@body))))
+    (list
+     (destructuring-bind (routing-rule lambda-list &rest body) args
+       `(caveman2:defroute ,routing-rule ,lambda-list
+         (with-connection (db)
+           ,@body))))
+    (t `(defroute (,(car args)) ,@(cdr args)))))
 
 (defun js-list (&rest paths)
   (mapcar (lambda (path) (list :path path)) paths))
