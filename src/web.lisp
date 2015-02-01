@@ -56,7 +56,7 @@
            ,@body))))
     (t `(defroute (,(car args)) ,@(cdr args)))))
 
-(defun js-list (&rest paths)
+(defun media-list (&rest paths)
   (mapcar (lambda (path) (list :path path)) paths))
 
 (defroute index "/" ()
@@ -119,15 +119,26 @@
   (db-let (document :document (where (:= :slug slug)))
       (throw-code 404)
     (out (:title (getf document :title)
-          :extrajs (js-list "doc.js"))
+          :extrajs (media-list "doc.js"))
          #P"document.tmpl" (get-document-data document))))
 
 (defroute viewset-settings ("/codos/settings/viewsets/") ()
    (unless (getf (get-user-info) :adminp)
      (throw-code 403))
-   (out "Viewset settings" #P"viewsets.tmpl"
+   (out (:title "Viewset settings" :extrajs (media-list "settings.js"))
+        #P"viewsets.tmpl"
         `(:viewfields ,(retrieve-all (select :* (from :viewfield)))
+          :viewfield-add-form ,(render-form (make-instance 'viewfield-form))
           :viewsets ,(get-all-viewsets))))
+
+(defroute viewfield-add ("/codos/api/viewfield/add" :method :POST) ()
+  (let ((form (make-instance 'viewfield-form)))
+    (bind-form form 'post-params)
+    (process-form form
+        (render-json `(:status :error :form ,(render-form form)))
+      (render-json '(:status :ok)))))
+      
+    
 
 ;;
 ;; Error pages

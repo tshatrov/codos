@@ -27,7 +27,8 @@
 :create-document
 :get-full-user-data
 :get-document-data
-:get-all-viewsets))
+:get-all-viewsets
+:create-viewfield))
 
 (in-package :codos.models)
 
@@ -132,14 +133,25 @@
 ;; viewsets
 
 (defun get-all-viewsets ()
-  (let ((viewsets
-         (retrieve-all
-          (select '(:viewset.id :viewset.title :vv.order :viewfield.*)
-                  (from :viewset)
-                  (left-join (:as :viewset-view :vv) :on (:= :vv.viewset :viewset.id))
-                  (left-join :viewfield :on (:= :vv.view :viewfield.id))
-                  (order-by :viewset.id :vv.order)))))
-    (group-plists viewsets :id :views :id 4)))
+  (with-connection (db)
+    (let ((viewsets
+           (retrieve-all
+            (select '(:viewset.id :viewset.title :vv.order :viewfield.*)
+              (from :viewset)
+              (left-join (:as :viewset-view :vv) :on (:= :vv.viewset :viewset.id))
+              (left-join :viewfield :on (:= :vv.view :viewfield.id))
+              (order-by :viewset.id :vv.order)))))
+      (group-plists viewsets :id :views :id 4))))
+
+(defun create-viewfield (abbr desc)
+  (with-connection (db)
+    (let ((old-vf (retrieve-one (select :id (from :viewfield) (where (:= :abbr abbr))))))
+      (if old-vf (error 'field-error
+                        :field :abbr
+                        :message "There already exists a viewfield with this abbreviation")
+          (execute
+           (insert-into :viewfield
+             (set= :abbr abbr :description desc)))))))
 
 ;; hub
 

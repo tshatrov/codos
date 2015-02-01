@@ -84,8 +84,6 @@
   (setf (headers *response* :content-type) "application/json")
   (encode-json object))
 
-
-
 (defmacro with-layout ((&rest env-for-layout) &body body)
   (let ((layout-path (merge-pathnames *default-layout-path*
                                       *default-layout-directory*)))

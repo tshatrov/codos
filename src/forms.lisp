@@ -9,9 +9,23 @@
   (:export
    :register-form
    :login-form
-   :doc-settings-form))
+   :doc-settings-form
+   :viewfield-form))
 
 (in-package :codos.forms)
+
+(defclass add-edit-form (form) ())
+
+(defgeneric finalize-add (form)
+  (:method (form)))
+
+(defgeneric finalize-edit (form)
+  (:method (form)))
+
+(defmethod finalize ((form add-edit-form))
+  (if (getf (form-vars form) :id)
+      (finalize-edit form)
+      (finalize-add form)))
 
 (defun validate-login (str)
   (let ((str (string-downcase str)))
@@ -48,7 +62,7 @@
           :name "email"
           :label "Email"))
 
-(defmethod validate :after ((form register-form))
+(defmethod finalize ((form register-form))
   (let ((data (form-data form)))
     (create-user
      (getf data :login)
@@ -68,7 +82,7 @@
              :name "pw"
              :label "Password"))
 
-(defmethod validate :after ((form login-form))
+(defmethod finalize ((form login-form))
   (let ((data (form-data form)))
     (login-user (getf data :login) (getf data :password))))
 
@@ -78,10 +92,24 @@
           :name "title"
           :label "Title"))
   
-(defmethod validate :after ((form doc-settings-form))
+(defmethod finalize ((form doc-settings-form))
   (let ((user (get-user-info))
         (data (form-data form)))
     (create-document
      (getf data :title)
      (getf user :id))))
      
+(def-form viewfield-form (add-edit-form)
+  (:abbr string-field
+         :validator (lambda (str) (validate-length str 1 10))
+         :name "abbr"
+         :label "Abbreviation")
+  (:desc string-field
+         :validator (lambda (str) (validate-length str 1 255))
+         :name "desc"
+         :label "Description"))
+
+(defmethod finalize-add ((form viewfield-form))
+  (let ((data (form-data form)))
+    (create-viewfield (getf data :abbr) (getf data :desc))))
+   
