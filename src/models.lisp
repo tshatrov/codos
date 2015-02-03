@@ -6,7 +6,8 @@
   (:import-from :codos.config
                 :config)
   (:import-from :1forms
-                :field-error)
+                :field-error
+                :make-choices)
   (:import-from :cl-annot.class
                 :export-constructors)
   (:export
@@ -28,7 +29,8 @@
 :get-full-user-data
 :get-document-data
 :get-all-viewsets
-:create-viewfield))
+:create-viewfield
+:choices-viewfield))
 
 (in-package :codos.models)
 
@@ -152,6 +154,14 @@
           (execute
            (insert-into :viewfield
              (set= :abbr abbr :description desc)))))))
+
+(defun choices-viewfield (&key (optional t))
+  (with-connection (db)
+    (make-choices (retrieve-all (select (:abbr :description) (from :viewfield)))
+                  (lambda (vf) (getf vf :abbr))
+                  (lambda (vf) (format nil "~a: ~a" (getf vf :abbr) (getf vf :description)))
+                  :optional optional
+                  )))
 
 ;; hub
 

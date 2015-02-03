@@ -62,10 +62,12 @@
       *asset-version*))
 
 (defun get-csrf-token ()
-  (or
-   (gethash :csrf-token *session*)
-   (setf (gethash :csrf-token *session*)
-         (generate-csrf-token))))
+  (if *session*
+      (or
+       (gethash :csrf-token *session*)
+       (setf (gethash :csrf-token *session*)
+             (generate-csrf-token)))
+      "testcsrf"))
 
 (defun check-csrf (&optional (field "csrf"))
   (unless (equal (gethash :csrf-token *session*)

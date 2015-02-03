@@ -131,6 +131,8 @@
         #P"viewsets.tmpl"
         `(:viewfields ,(retrieve-all (select :* (from :viewfield)))
           :viewfield-add-form ,(render-form (make-instance 'viewfield-form))
+          :viewset-add-form ,(render-form (make-instance 'viewset-form))
+          :viewset-formset ,(render-formset (make-instance 'viewset-formset))
           :viewsets ,(get-all-viewsets))))
 
 (defroute viewfield-add ("/codos/api/viewfield/add" :method :POST) ()

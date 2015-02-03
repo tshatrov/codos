@@ -1,6 +1,6 @@
 (in-package :cl-user)
 (defpackage codos.forms
-  (:use :cl :codos.view :1forms :codos.models)
+  (:use :cl :codos.view :1forms :codos.models :datafly)
   (:import-from :codos.config
                 :config)
   (:import-from :caveman2
@@ -10,7 +10,9 @@
    :register-form
    :login-form
    :doc-settings-form
-   :viewfield-form))
+   :viewfield-form
+   :viewset-form
+   :viewset-formset))
 
 (in-package :codos.forms)
 
@@ -22,17 +24,17 @@
 (defgeneric finalize-edit (form)
   (:method (form)))
 
+(defmethod finalize ((form add-edit-form))
+  (if (getf (form-vars form) :id)
+      (finalize-edit form)
+      (finalize-add form)))
+
 (defun validate-csrf (str)
   (unless (equal str (get-csrf-token))
     (error 'field-error :message "CSRF check failed")))
 
 (def-form csrf-form (form)
   (:csrf hidden-field :name "csrf" :validator 'validate-csrf :initial (get-csrf-token)))
-
-(defmethod finalize ((form add-edit-form))
-  (if (getf (form-vars form) :id)
-      (finalize-edit form)
-      (finalize-add form)))
 
 (defun validate-login (str)
   (let ((str (string-downcase str)))
@@ -120,3 +122,16 @@
   (let ((data (form-data form)))
     (create-viewfield (getf data :abbr) (getf data :desc))))
    
+(def-form viewset-form (csrf-form)
+  (:title string-field
+          :validator (lambda (str) (validate-length str 1 255))
+          :name "title"
+          :label "Title")
+  )
+
+(def-form viewset-viewfield-form ()
+  (:view select-field
+         :choices (choices-viewfield)
+         :name "view[]"))
+
+(def-formset viewset-formset viewset-viewfield-form)

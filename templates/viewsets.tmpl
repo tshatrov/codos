@@ -31,4 +31,20 @@
     <% @endloop %>
   </ul>
   <% @endloop %>
+  <a href="#" onclick="$('#viewset-add').toggle(); return false">Add new viewset</a>
+</div>
+
+<div class="row">
+  <div id="viewset-add" class="columns small-12 medium-6 panel hide">
+    <form id="viewset-add-form"
+          action="" method="POST">
+      <div id="viewset-add-inner">
+        <% @var viewset-add-form -escape raw %>
+        <% @loop viewset-formset %>
+        <% @var form -escape raw %>
+        <% @endloop %>
+      </div>
+      <input class="button" type="submit" value="Submit" />      
+    </form>
+  </div>
 </div>
